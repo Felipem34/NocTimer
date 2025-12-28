@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NocTimer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="tabs">
+    <button class="tab active" data-tab="study">Study</button>
+    <button class="tab" data-tab="work">Work</button>
+  <button class="tab" data-tab="growth">Growth</button>
+  <button class="tab" data-tab="fun">Fun</button>
+  </div>
+
+  <div class="timer-container" data-tab-content="study">
+    <div class="time-inputs">
+      <div class="time-input">
+        <input type="number" id="hours" min="0" max="24" value="00" />
+      </div>
+      <div class="time-input">
+        <input type="number" id="minutes" min="0" max="59" value="00" />
+      </div>
+      <div class="time-input">
+        <input type="number" id="seconds" min="0" max="59" value="00" />
+      </div>
+    </div>
+    <div class="presets">
+      <button data-preset="28800">08:00:00</button>
+      <button data-preset="7200">02:00:00</button>
+      <button data-preset="1800">00:30:00</button>
+    </div>
+    <div class="actions">
+      <button id="start-button">Começar</button>
+    </div>
+  </div>
+
+  <div class="timer-container hidden" data-tab-content="work">
+    <div class="time-inputs">
+      <div class="time-input">
+        <input type="number" id="hours-work" min="0" max="24" value="00" />
+      </div>
+      <div class="time-input">
+        <input type="number" id="minutes-work" min="0" max="59" value="00" />
+      </div>
+      <div class="time-input">
+        <input type="number" id="seconds-work" min="0" max="59" value="00" />
+      </div>
+    </div>
+    <div class="presets">
+      <button data-preset="28800">08:00:00</button>
+      <button data-preset="7200">02:00:00</button>
+      <button data-preset="1800">00:30:00</button>
+    </div>
+    <div class="actions">
+      <button id="start-button-work">Começar</button>
+    </div>
+  </div>
+
+  <div class="timer-container hidden" data-tab-content="growth">
+    <div class="time-inputs">
+      <div class="time-input">
+        <input type="number" id="hours-growth" min="0" max="24" value="00" />
+      </div>
+      <div class="time-input">
+        <input type="number" id="minutes-growth" min="0" max="59" value="00" />
+      </div>
+      <div class="time-input">
+        <input type="number" id="seconds-growth" min="0" max="59" value="00" />
+      </div>
+    </div>
+    <div class="presets">
+      <button data-preset="28800">08:00:00</button>
+      <button data-preset="7200">02:00:00</button>
+      <button data-preset="1800">00:30:00</button>
+    </div>
+    <div class="actions">
+      <button id="start-button-growth">Começar</button>
+    </div>
+  </div>
+
+  <div class="timer-container hidden" data-tab-content="fun">
+    <div class="time-inputs">
+      <div class="time-input">
+        <input type="number" id="hours-fun" min="0" max="24" value="00" />
+      </div>
+      <div class="time-input">
+        <input type="number" id="minutes-fun" min="0" max="59" value="00" />
+      </div>
+      <div class="time-input">
+        <input type="number" id="seconds-fun" min="0" max="59" value="00" />
+      </div>
+    </div>
+    <div class="presets">
+      <button data-preset="28800">08:00:00</button>
+      <button data-preset="7200">02:00:00</button>
+      <button data-preset="1800">00:30:00</button>
+    </div>
+    <div class="actions">
+      <button id="start-button-fun">Começar</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

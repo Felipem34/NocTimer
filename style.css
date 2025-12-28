@@ -1,0 +1,119 @@
+/* Dracula Theme Variables */
+:root {
+  --bg: #282a36;
+  --current-line: #44475a;
+  --selection: #44475a;
+  --foreground: #f8f8f2;
+  --cyan: #8be9fd;
+  --green: #50fa7b;
+  --pink: #ff79c6;
+  --purple: #bd93f9;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 350px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg);
+  color: var(--foreground);
+}
+
+/* Navigation Tabs */
+.tabs {
+  display: flex;
+  background-color: var(--current-line);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  border: none;
+  background: var(--current-line);
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: 1.5em;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.tab.active {
+  background: var(--purple);
+  color: var(--bg);
+}
+
+/* Timer Container */
+.timer-container {
+  padding: 15px;
+}
+
+/* Hidden state */
+.hidden {
+  display: none;
+}
+
+/* Time Inputs Layout */
+.time-inputs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Individual Time Unit */
+.time-input {
+  margin: 0 10px;
+}
+
+/* Time Input Field */
+.time-input input {
+  width: 70px;
+  text-align: center;
+  font-size: 3em;
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  font-weight: 600;
+}
+
+/* Preset Buttons */
+.presets {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.presets button {
+  background: var(--green);
+  border: none;
+  color: var(--bg);
+  padding: 8px 14px;
+  margin: 0 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.4em;
+  font-weight: 600;
+}
+
+/* Action Button */
+.actions {
+  text-align: center;
+}
+
+.actions button {
+  background: var(--pink);
+  border: none;
+  color: var(--bg);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
+.tab:hover,
+.presets button:hover,
+.actions button:hover {
+  opacity: 0.8;
+}
