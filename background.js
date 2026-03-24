@@ -1,5 +1,21 @@
 // background.js - Service Worker for NocTimer
 
+const UPDATE_SUFFIX = '-update';
+
+function clearBadge() {
+  chrome.action.setBadgeText({ text: '' });
+}
+
+function getUpdateAlarmName(key) {
+  return `${key}${UPDATE_SUFFIX}`;
+}
+
+function formatBadgeText(seconds) {
+  if (seconds > 3600) return `${Math.floor(seconds / 3600)}h`;
+  if (seconds > 60) return `${Math.floor(seconds / 60)}m`;
+  return `${seconds}s`;
+}
+
 // Setup alarms when extension starts up or is installed
 function restoreAlarms() {
   chrome.storage.local.get(null, data => {
@@ -11,71 +27,84 @@ function restoreAlarms() {
   });
 }
 
+function clearBadgeAndRestore() {
+  clearBadge();
+  restoreAlarms();
+}
+
+function createTimerAlarms(key, when) {
+  chrome.alarms.create(key, { when });
+  chrome.alarms.create(getUpdateAlarmName(key), { when: Date.now() + 1000 });
+}
+
+function clearTimerAlarms(key) {
+  chrome.alarms.clear(key);
+  chrome.alarms.clear(getUpdateAlarmName(key));
+}
+
 chrome.runtime.onInstalled.addListener(() => {
   // limpar badge ao instalar
-  chrome.action.setBadgeText({ text: '' });
-  restoreAlarms();
+  clearBadgeAndRestore();
 });
 
 chrome.runtime.onStartup.addListener(() => {
   // limpar badge ao iniciar
-  chrome.action.setBadgeText({ text: '' });
-  restoreAlarms();
+  clearBadgeAndRestore();
 });
 
 // Listen for messages from popup.js to schedule or clear alarms
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(msg => {
   if (msg.action === 'createAlarm' && msg.key && msg.when) {
-    // criar alarme final
-    chrome.alarms.create(msg.key, { when: msg.when });
-    // criar alarme de atualização de badge a cada segundo
-    chrome.alarms.create(msg.key + '-update', { when: Date.now() + 1000 });
+    // criar alarme final e o de atualização do badge
+    createTimerAlarms(msg.key, msg.when);
   } else if (msg.action === 'clearAlarm' && msg.key) {
-    chrome.alarms.clear(msg.key);
-    chrome.alarms.clear(msg.key + '-update');
+    clearTimerAlarms(msg.key);
   }
 });
 
 // Alarm triggered
 chrome.alarms.onAlarm.addListener(alarm => {
   const name = alarm.name;
-  if (name.endsWith('-update')) {
+
+  if (name.endsWith(UPDATE_SUFFIX)) {
     const key = name.replace(/-update$/, '');
+
     chrome.storage.local.get(key, data => {
       const item = data[key];
+
       if (item && item.state === 'running' && item.endTime) {
         const rem = Math.max(0, Math.ceil((item.endTime - Date.now()) / 1000));
-        let text = '';
-        if (rem > 3600) text = Math.floor(rem/3600) + 'h';
-        else if (rem > 60) text = Math.floor(rem/60) + 'm';
-        else text = rem + 's';
-        chrome.action.setBadgeText({ text });
+        chrome.action.setBadgeText({ text: formatBadgeText(rem) });
         // agendar próxima atualização em 1s
         chrome.alarms.create(name, { when: Date.now() + 1000 });
       } else {
         // limpar badge e cancelar atualizações
-        chrome.action.setBadgeText({ text: '' });
+        clearBadge();
         chrome.alarms.clear(name);
       }
     });
-  } else {
-    // alarme final
-    chrome.windows.create({
-      url: chrome.runtime.getURL('alarm.html'),
-      type: 'popup',
-      width: 400,
-      height: 200
-    });
-    // limpar badge e cancelar atualização
-    chrome.action.setBadgeText({ text: '' });
-    chrome.alarms.clear(name + '-update');
-    // restaurar estado READY mantendo initial, remover endTime/remaining
-    chrome.storage.local.get(name, data => {
-      const item = data[name] || {};
-      const init = item.initial || 0;
-      const obj = {};
-      obj[name] = { state: 'ready', initial: init };
-      chrome.storage.local.set(obj);
-    });
+
+    return;
   }
+
+  // alarme final
+  chrome.windows.create({
+    url: chrome.runtime.getURL('alarm.html'),
+    type: 'popup',
+    width: 400,
+    height: 200
+  });
+
+  // limpar badge e cancelar atualização
+  clearBadge();
+  chrome.alarms.clear(getUpdateAlarmName(name));
+
+  // restaurar estado READY mantendo initial, remover endTime/remaining
+  chrome.storage.local.get(name, data => {
+    const item = data[name] || {};
+    const init = item.initial || 0;
+    const obj = {};
+    obj[name] = { state: 'ready', initial: init };
+    chrome.storage.local.set(obj);
+  });
 });
