@@ -46,6 +46,9 @@ body {
 /* Timer Container */
 .timer-container {
   padding: 15px;
+  text-align: center;
+  min-height: 140px;
+  box-sizing: border-box;
 }
 
 /* Hidden state */
@@ -79,37 +82,56 @@ body {
 
 /* Preset Buttons */
 .presets {
-  display: flex;
+  display: inline-flex;
   justify-content: center;
-  margin-bottom: 20px;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
 }
 
 .presets button {
   background: var(--green);
   border: none;
   color: var(--bg);
-  padding: 8px 14px;
-  margin: 0 5px;
+  padding: 7px 12px;
+  margin: 0;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 1.4em;
+  font-size: 1.5em;
   font-weight: 600;
 }
 
 /* Action Button */
 .actions {
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
 }
 
 .actions button {
   background: var(--pink);
   border: none;
   color: var(--bg);
-  padding: 8px 16px;
+  padding: 7px 14px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 1.5em;
   font-weight: 600;
+}
+
+.timer-container.is-paused {
+  white-space: nowrap;
+}
+
+.timer-container.is-paused .presets {
+  margin-bottom: 0;
+  gap: 2px;
+  vertical-align: middle;
+}
+
+.timer-container.is-paused .actions {
+  margin-left: 4px;
+  vertical-align: middle;
 }
 
 .tab:hover,

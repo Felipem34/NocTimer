@@ -58,8 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const presets = document.querySelectorAll('.presets button');
   presets.forEach(btn => {
     btn.addEventListener('click', () => {
-      let total = parseInt(btn.getAttribute('data-preset'), 10);
+      const preset = parseInt(btn.getAttribute('data-preset'), 10) || 0;
       const container = btn.closest('.timer-container');
+      const hCur = parseInt(container.querySelector('input[id*="hours"]').value, 10) || 0;
+      const mCur = parseInt(container.querySelector('input[id*="minutes"]').value, 10) || 0;
+      const sCur = parseInt(container.querySelector('input[id*="seconds"]').value, 10) || 0;
+      let total = hCur * 3600 + mCur * 60 + sCur + preset;
       const h = Math.floor(total / 3600);
       total %= 3600;
       const m = Math.floor(total / 60);
@@ -82,12 +86,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const tab = container.getAttribute('data-tab-content');
     const key = `nocTimer-${tab}`;
     const btn = container.querySelector('.actions button');
+    const presetsWrap = container.querySelector('.presets');
+    const twoHourPresetBtn = presetsWrap.querySelector('button[data-preset="7200"]');
     const resetBtn = document.createElement('button');
     resetBtn.textContent = 'Cancelar';
-    resetBtn.style.marginLeft = '10px';
+    resetBtn.style.marginRight = '4px';
     resetBtn.style.display = 'none';
-    container.querySelector('.actions').appendChild(resetBtn);
+    container.querySelector('.actions').insertBefore(resetBtn, btn);
     let intervalId = null;
+
+    function applyPresetVisibility(state) {
+      container.classList.toggle('is-paused', state === STATE.PAUSED);
+      if (state === STATE.RUNNING) {
+        presetsWrap.style.display = 'none';
+        if (twoHourPresetBtn) twoHourPresetBtn.style.display = '';
+      } else if (state === STATE.PAUSED) {
+        presetsWrap.style.display = 'inline-flex';
+        if (twoHourPresetBtn) twoHourPresetBtn.style.display = 'none';
+      } else {
+        presetsWrap.style.display = 'inline-flex';
+        if (twoHourPresetBtn) twoHourPresetBtn.style.display = '';
+      }
+    }
 
     // Restaurar estado salvo
     chrome.storage.local.get(key, data => {
@@ -103,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.querySelector('input[id*="seconds"]').value = t.s;
         btn.textContent = 'Pausar';
         resetBtn.style.display = 'none';
-        container.querySelector('.presets').style.display = 'none';
+        applyPresetVisibility(STATE.RUNNING);
         // Restaurar contagem e iniciar atualização contínua
         container.dataset.endTime = item.endTime;
         if (item.initial != null) container.dataset.initial = item.initial;
@@ -118,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.querySelector('input[id*="seconds"]').value = t.s;
         btn.textContent = 'Continuar';
         resetBtn.style.display = 'inline-block';
-        container.querySelector('.presets').style.display = 'none';
+        applyPresetVisibility(STATE.PAUSED);
         if (item.initial != null) container.dataset.initial = item.initial;
       } else {
         // estado READY ou fim, exibir valor inicial
@@ -128,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.querySelector('input[id*="seconds"]').value = t.s;
         btn.textContent = 'Começar';
         resetBtn.style.display = 'none';
-        container.querySelector('.presets').style.display = 'flex';
+        applyPresetVisibility(STATE.READY);
       }
     });
 
@@ -215,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.dataset.endTime = endTime;
         container.dataset.state = STATE.RUNNING;
         btn.textContent = 'Pausar';
-        container.querySelector('.presets').style.display = 'none';
+        applyPresetVisibility(STATE.RUNNING);
         resetBtn.style.display = 'none';
         // Salvar estado com tempo inicial para reset
         saveState({ state: STATE.RUNNING, endTime, initial: totalSec });
@@ -230,8 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
         container.dataset.state = STATE.PAUSED;
         btn.textContent = 'Continuar';
         resetBtn.style.display = 'inline-block';
-      // hide presets when paused
-      container.querySelector('.presets').style.display = 'none';
+      // show presets when paused (except 2h)
+      applyPresetVisibility(STATE.PAUSED);
       // preserve initial for reset
       const initial = parseInt(container.dataset.initial, 10) || 0;
       saveState({ state: STATE.PAUSED, remaining: rem, initial });
@@ -253,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
            container.dataset.state = STATE.RUNNING;
            btn.textContent = 'Pausar';
            resetBtn.style.display = 'none';
+          applyPresetVisibility(STATE.RUNNING);
         // preserve initial for reset
         const initialResume = item.initial || parseInt(container.dataset.initial,10) || 0;
          container.dataset.initial = initialResume;
@@ -278,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
   saveState({ state: STATE.READY, initial: ini });
       container.dataset.state = STATE.READY;
       btn.textContent = 'Começar';
-      container.querySelector('.presets').style.display = 'flex';
+      applyPresetVisibility(STATE.READY);
       resetBtn.style.display = 'none';
       // Limpar badge no estado Ready
       chrome.action.setBadgeText({ text: '' });
